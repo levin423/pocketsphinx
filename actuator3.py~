@@ -21,7 +21,7 @@ import baxter_external_devices
 from baxter_interface import CHECK_VERSION
 
 def speechCb(msg):
-
+    rospy.logwarn('in callback')
     left = baxter_interface.Limb('left')
     right = baxter_interface.Limb('right')
     grip_left = baxter_interface.Gripper('left', CHECK_VERSION)
@@ -43,7 +43,7 @@ def speechCb(msg):
 	print("move right")
 
 def main():
-
+    rospy.logwarn('in main')
     #Baxter
     print("Initializing node... ")
     rospy.init_node("actuator")
@@ -67,8 +67,8 @@ def main():
     r = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         r.sleep()
+    rospy.logwarn('in main2')
 
     rospy.spin()
-
 if __name__ == '__main__':
     main()

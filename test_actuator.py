@@ -31,39 +31,36 @@ def speechCb(msg):
     rj = right.joint_names()
 
     def set_j(limb, joint_name, velocity):
-	current_velocity = limb.joint_velocity(joint_name)
-	joint_command = {joint_name: velocity}
+		current_velocity = limb.joint_velocity(joint_name)
+		joint_command = {joint_name: velocity}
         limb.set_joint_velocities(joint_command)   
 
     cmd_wrd = msg.data.split()
-    print("1")
+    rospy.logwarn = len(cmd_wrd)
     if cmd_wrd[0].find("move") > -1 or cmd_wrd[0].find("shift") > -1:
-	print("2")
 	#move left
 	if cmd_wrd[1].find("left") > -1:
-	    print("3")
 	    #move left shoulder
 	    if cmd_wrd[2].find("shoulder") > -1:
 		side = left
-		print("4")
 		#move left shoulder left
 		if cmd_wrd[3].find("left") > -1:
 		    joint = lj[0]
-		    #move left shoulder left faster
-		    if cmd_wrd[4].find("faster") > -1:
-			set_j(side, joint, abs(current_velocity) + .1)
-		        print("Moving left shoulder left faster")
-		    #move left shoulder left faster
-		    elif cmd_wrd[4].find("slower") > -1:
-			if abs(current_velocity) - .1 <= 0:
-			   set_j(side, joint, 0)
-			   print("Left shoulder stopped for speed")
-			else:
-			    set_j(side, joint, abs(current_velocity) - .1)
-			    print("Moving left shoulder left slower")
+		    if len(cmd_wrd) == 5:
+			    #move left shoulder left faster
+			    if cmd_wrd[4].find("faster") > -1:
+				set_j(side, joint, abs(current_velocity) + .1)
+				print("Moving left shoulder left faster")
+			    #move left shoulder left faster
+			    elif cmd_wrd[4].find("slower") > -1:
+				if abs(current_velocity) - .1 <= 0:
+				   set_j(side, joint, 0)
+				   print("Left shoulder stopped for speed")
+				else:
+				    set_j(side, joint, abs(current_velocity) - .1)
+				    print("Moving left shoulder left slower")
 		    #move left shoulder left (no modifier)
 		    else:
-		    	print("5")
 			set_j(left, lj[0], .2)
 			print("Moving left shoulder left")
 
@@ -181,13 +178,13 @@ def main():
     rs.enable()
 
     #Voice
-    rospy.Subscriber('basic_recognizer/output', String, speechCb)
+    rospy.Subscriber('advanced_recognizer/output', String, speechCb)
 
     r = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         r.sleep()
 
-    #rospy.spin()
+    rospy.spin()
 
 if __name__ == '__main__':
     main()
