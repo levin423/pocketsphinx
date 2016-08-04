@@ -87,14 +87,30 @@ def speechCb(msg):
 								joint_dof = lj[2]
 							elif joint == "wrist":
 								joint_dof = lj[4]
+							if cmd_wrd[1].find("left") > -1:
+								velocity =.2
+							else: velocity =-.2
 				
-						elif cmd_wrd[1].find("up") > -1 or cmd_wrd[1].find("down") > -1:
+						elif cmd_wrd[1].find("up") > -1:
 							if joint == "shoulder":
 								joint_dof = lj[1]
+								velocity = -.2
 							elif joint == "elbow":
 								joint_dof = lj[2]
+								velocity = .2
 							elif joint == "wrist":
 								joint_dof = lj[5]
+								velocity = .2
+						elif cmd_wrd[1].find("down") > -1:
+							if joint == "shoulder":
+								joint_dof = lj[1]
+								velocity = .2
+							elif joint == "elbow":
+								joint_dof = lj[2]
+								velocity = -.2
+							elif joint == "wrist":
+								joint_dof = lj[5]
+								velocity = -.2
 
 					elif side == "right":
 						if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("right") > -1:
@@ -104,19 +120,30 @@ def speechCb(msg):
 								joint_dof = rj[2]
 							elif joint == "wrist":
 								joint_dof = rj[4]
+							if cmd_wrd[1].find("left") > -1:
+								velocity =.2
+							else: velocity =-.2
 				
-						elif cmd_wrd[1].find("up") > -1 or cmd_wrd[1].find("down") > -1:
+						elif cmd_wrd[1].find("up") > -1:
 							if joint == "shoulder":
 								joint_dof = rj[1]
+								velocity = -.2
 							elif joint == "elbow":
 								joint_dof = rj[2]
+								velocity = .2
 							elif joint == "wrist":
 								joint_dof = rj[5]
-
-					if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("down") > -1:
-						velocity = 0.2
-					elif cmd_wrd[1].find("right") > -1 or cmd_wrd[1].find("up") > -1:
-						velocity = -0.2
+								velocity = .2
+						elif cmd_wrd[1].find("down") > -1:
+							if joint == "shoulder":
+								joint_dof = rj[1]
+								velocity = .2
+							elif joint == "elbow":
+								joint_dof = rj[2]
+								velocity = -.2
+							elif joint == "wrist":
+								joint_dof = rj[5]
+								velocity = -.2
 
 					try: joint_dof
 					except NameError:
@@ -126,12 +153,12 @@ def speechCb(msg):
 							set_j(left, joint_dof, velocity)
 							print(side)
 							print(joint_dof)
-							print(baxter_interface.Limb('left').joint_velocity(joint_dof))
+							print(left.joint_velocity(joint_dof))
 						elif side == "right":
 							set_j(right, joint_dof, velocity)
 							print(side)
 							print(joint_dof)
-							print(baxter_interface.Limb('right').joint_velocity(joint_dof))
+							print(right.joint_velocity(joint_dof))
 				
 		
 	cmd_wrd = msg.data.split()
@@ -147,13 +174,13 @@ def main():
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
 
-    '''def set_neutral():
-	"""
+    def set_neutral():
+	'''"""
 	Sets both arms back into a neutral pose.
 	"""
 	print("Moving to neutral pose...")
-	baxter_interface.limb.Limb('left').move_to_neutral()
-	baxter_interface.limb.Limb('right').move_to_neutral()
+	baxter_interface.Limb('left').move_to_neutral(timeout=15.0)
+	baxter_interface.Limb('right').move_to_neutral(timeout=15.0)
 	'''
 
     def clean_shutdown():
