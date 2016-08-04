@@ -20,6 +20,8 @@ import baxter_external_devices
 
 from baxter_interface import CHECK_VERSION
 
+from subprocess import call
+
 def speechCb(msg):
 
 	rospy.logwarn(msg.data)
@@ -34,85 +36,107 @@ def speechCb(msg):
 		current_velocity = limb.joint_velocity(joint_name)
 		joint_command = {joint_name: velocity}
 		limb.set_joint_velocities(joint_command)   
-
+	
 	def cmd(cmd_wrd):
-		global side
-		global joint
-		if cmd_wrd[0].find("left") > -1 or cmd_wrd[0].find("right") > -1:
-			
-			if cmd_wrd[0].find("left") > -1:
-				side = left
-			elif cmd_wrd[0].find("right") > -1:
-				side = right
-
-			if cmd_wrd[1].find("shoulder") > -1:
-				joint =  "shoulder"
-			elif cmd_wrd[1].find("elbow") > -1:
-				joint =  "elbow"
-			elif cmd_wrd[1].find("wrist") > -1:
-				joint =  "wrist"
-			print(side, joint, "selected") 
-
-		elif cmd_wrd[0].find("move") > -1 or cmd_wrd[0].find("shift") > -1:
-			'''try: 
-				joint
-			except NameError: 
-				print ("Limb/Joint Undefined")
-			else:'''
-			print ("Doing work")
-			if side == left:
-				if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("right") > -1:
-					if joint == "shoulder":
-						joint_dof = lj[0]
-					elif joint == "elbow":
-						joint_dof = lj[2]
-					elif joint == "wrist":
-						joint_dof = lj[4]
-					
-				elif cmd_wrd[1].find("up") > -1 or cmd_wrd[1].find("down") > -1:
-					if joint == "shoulder":
-						joint_dof = lj[1]
-					elif joint == "elbow":
-						joint_dof = lj[2]
-					elif joint == "wrist":
-						joint_dof = lj[5]
-
-			elif side == right:
-				if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("right") > -1:
-					if joint == "shoulder":
-						joint_dof = rj[0]
-					elif joint == "elbow":
-						joint_dof = rj[2]
-					elif joint == "wrist":
-						joint_dof = rj[4]
-					
-				elif cmd_wrd[1].find("up") > -1 or cmd_wrd[1].find("down") > -1:
-					if joint == "shoulder":
-						joint_dof = rj[1]
-					elif joint == "elbow":
-						joint_dof = rj[2]
-					elif joint == "wrist":
-						joint_dof = rj[5]
-
-			if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("up") > -1:
-				velocity = 0.2
-			elif cmd_wrd[1].find("right") > -1 or cmd_wrd[1].find("down") > -1:
-				velocity = -0.2
-			set_j(side, joint_dof, velocity)
-			print(side)
-			print(joint)
-			print(joint_dof)
-				
-
-		elif cmd_wrd[0].find("stop") > -1:
-			for i in range(0,6):
-				set_j(left, lj[i], 0)
-				set_j(right, rj[i], 0)
+		if cmd_wrd[0].find("stop") > -1:
+			left.exit_control_mode(timeout=0.2)
+			right.exit_control_mode(timeout=0.2)
 			print("stopped")
-				
 
+		try: paused
+		except NameError:
+			rospy.logwarn("setting 'paused'")
+			global paused
+			paused = False
+
+		if cmd_wrd[0].find("pause") > -1:
+			paused = True
+		elif cmd_wrd[0].find("continue") > -1:
+			paused = False
+
+		if paused == False:
+			global side
+			global joint
+			if cmd_wrd[0].find("left") > -1 or cmd_wrd[0].find("right") > -1:
+		
+				if cmd_wrd[0].find("left") > -1:
+					side = "left"
+				elif cmd_wrd[0].find("right") > -1:
+					side = "right"
+
+				if cmd_wrd[1].find("shoulder") > -1:
+					joint =  "shoulder"
+				elif cmd_wrd[1].find("elbow") > -1:
+					joint =  "elbow"
+				elif cmd_wrd[1].find("wrist") > -1:
+					joint =  "wrist"
+				print(side, joint, "selected") 
+
+			elif cmd_wrd[0].find("move") > -1 or cmd_wrd[0].find("shift") > -1:
+				try: joint
+				except NameError: 
+					print ("Limb/Joint Undefined")
+				else:
+					print ("Doing work")
+					if side == "left":
+						if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("right") > -1:
+							print("debug")
+							if joint == "shoulder":
+								joint_dof = lj[0]
+							elif joint == "elbow":
+								joint_dof = lj[2]
+							elif joint == "wrist":
+								joint_dof = lj[4]
+				
+						elif cmd_wrd[1].find("up") > -1 or cmd_wrd[1].find("down") > -1:
+							if joint == "shoulder":
+								joint_dof = lj[1]
+							elif joint == "elbow":
+								joint_dof = lj[2]
+							elif joint == "wrist":
+								joint_dof = lj[5]
+
+					elif side == "right":
+						if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("right") > -1:
+							if joint == "shoulder":
+								joint_dof = rj[0]
+							elif joint == "elbow":
+								joint_dof = rj[2]
+							elif joint == "wrist":
+								joint_dof = rj[4]
+				
+						elif cmd_wrd[1].find("up") > -1 or cmd_wrd[1].find("down") > -1:
+							if joint == "shoulder":
+								joint_dof = rj[1]
+							elif joint == "elbow":
+								joint_dof = rj[2]
+							elif joint == "wrist":
+								joint_dof = rj[5]
+
+					if cmd_wrd[1].find("left") > -1 or cmd_wrd[1].find("down") > -1:
+						velocity = 0.2
+					elif cmd_wrd[1].find("right") > -1 or cmd_wrd[1].find("up") > -1:
+						velocity = -0.2
+
+					try: joint_dof
+					except NameError:
+						print ("joint_dof not set")
+					else:
+						if side == "left":
+							set_j(left, joint_dof, velocity)
+							print(side)
+							print(joint_dof)
+							print(baxter_interface.Limb('left').joint_velocity(joint_dof))
+						elif side == "right":
+							set_j(right, joint_dof, velocity)
+							print(side)
+							print(joint_dof)
+							print(baxter_interface.Limb('right').joint_velocity(joint_dof))
+				
+		
 	cmd_wrd = msg.data.split()
 	cmd(cmd_wrd)
+	
 
 def main():
 
@@ -123,8 +147,18 @@ def main():
     rs = baxter_interface.RobotEnable(CHECK_VERSION)
     init_state = rs.state().enabled
 
+    '''def set_neutral():
+	"""
+	Sets both arms back into a neutral pose.
+	"""
+	print("Moving to neutral pose...")
+	baxter_interface.limb.Limb('left').move_to_neutral()
+	baxter_interface.limb.Limb('right').move_to_neutral()
+	'''
+
     def clean_shutdown():
         print("\nExiting example...")
+	#set_neutral()
         if not init_state:
             print("Disabling robot...")
             rs.disable()
