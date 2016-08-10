@@ -35,13 +35,21 @@ def speechCb(msg):
 	def set_j(limb, joint_name, velocity):
 		current_velocity = limb.joint_velocity(joint_name)
 		joint_command = {joint_name: velocity}
-		limb.set_joint_velocities(joint_command)   
+		limb.set_joint_velocities(joint_command) 
 	
 	def cmd(cmd_wrd):
 		if cmd_wrd[0].find("stop") > -1:
 			left.exit_control_mode(timeout=0.2)
 			right.exit_control_mode(timeout=0.2)
 			print("stopped")
+		if cmd_wrd[0].find("shift") > -1 and cmd_wrd[1].find("lower") > -1:
+			print("left joints")
+			for i in range(0,6):
+				print(left.joint_velocity(lj[i]))
+			print("right joints")
+			for i in range(0,6):
+				print(right.joint_velocity(rj[i]))
+			
 
 		try: paused
 		except NameError:
@@ -96,8 +104,8 @@ def speechCb(msg):
 								joint_dof = lj[1]
 								velocity = -.2
 							elif joint == "elbow":
-								joint_dof = lj[2]
-								velocity = .2
+								joint_dof = lj[3]
+								velocity = -.2
 							elif joint == "wrist":
 								joint_dof = lj[5]
 								velocity = .2
@@ -106,8 +114,8 @@ def speechCb(msg):
 								joint_dof = lj[1]
 								velocity = .2
 							elif joint == "elbow":
-								joint_dof = lj[2]
-								velocity = -.2
+								joint_dof = lj[3]
+								velocity = .2
 							elif joint == "wrist":
 								joint_dof = lj[5]
 								velocity = -.2
@@ -129,8 +137,8 @@ def speechCb(msg):
 								joint_dof = rj[1]
 								velocity = -.2
 							elif joint == "elbow":
-								joint_dof = rj[2]
-								velocity = .2
+								joint_dof = rj[3]
+								velocity = -.2
 							elif joint == "wrist":
 								joint_dof = rj[5]
 								velocity = .2
@@ -139,8 +147,8 @@ def speechCb(msg):
 								joint_dof = rj[1]
 								velocity = .2
 							elif joint == "elbow":
-								joint_dof = rj[2]
-								velocity = -.2
+								joint_dof = rj[3]
+								velocity = .2
 							elif joint == "wrist":
 								joint_dof = rj[5]
 								velocity = -.2
@@ -175,13 +183,13 @@ def main():
     init_state = rs.state().enabled
 
     def set_neutral():
-	"""
+	'''"""
 	Sets both arms back into a neutral pose.
 	"""
 	print("Moving to neutral pose...")
 	baxter_interface.Limb('left').move_to_neutral(timeout=15.0)
 	baxter_interface.Limb('right').move_to_neutral(timeout=15.0)
-	
+	'''
 
     def clean_shutdown():
         print("\nExiting example...")
