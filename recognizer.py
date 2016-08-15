@@ -29,9 +29,12 @@ gobject.threads_init()
 import gst
 
 from std_msgs.msg import String
+from std_msgs.msg import Float64
 from std_srvs.srv import *
 import os
 import commands
+
+import time
 
 class recognizer(object):
     """ GStreamer based speech recognizer. """
@@ -66,6 +69,7 @@ class recognizer(object):
         self.started = False
         rospy.on_shutdown(self.shutdown)
         self.pub = rospy.Publisher('~output', String)
+        #self.pubtime = rospy.Publisher('~timeoutput', Float64)
         rospy.Service("~start", Empty, self.start)
         rospy.Service("~stop", Empty, self.stop)
 
@@ -170,8 +174,11 @@ class recognizer(object):
         """ Insert the final result. """
         msg = String()
         msg.data = str(hyp.lower())
-        #rospy.loginfo(msg.data)
         self.pub.publish(msg)
+        timestamp = time.time()
+        #self.pubtime.publish(timestamp)
+        #rospy.set_param('phrase', msg)
+        rospy.set_param('~time', timestamp)
 
 if __name__ == "__main__":
     start = recognizer()
